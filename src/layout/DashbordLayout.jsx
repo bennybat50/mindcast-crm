@@ -53,6 +53,8 @@ const DashboardLayout = () => {
 
     if (adminData && adminData.adminemail) {
       setAdminUsername(adminData.adminemail);
+    }else{
+      window.location.href ="/layout"
     }
   }, []);
   const handleLogout = () => {

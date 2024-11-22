@@ -1,6 +1,4 @@
 
-import AllModerations from "../components/AllModerations";
-
 
 const ChangePassword = () => {
 

@@ -1,10 +1,12 @@
 import { Button, Input, Table } from "antd";
-
 import arrowDown from "../assets/arrow-down.png";
 import search from "../assets/search-normal.png";
 import user from "../assets/user_img.png";
 import verify from "../assets/verify.png";
 import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import axios from "axios";
+
 
 const Coupons = () => {
   const columns = [
@@ -13,11 +15,6 @@ const Coupons = () => {
       dataIndex: "coupon",
       key: "coupon",
     },
-    // {
-    //   title: "Company-Email",
-    //   dataIndex: "company_email",
-    //   key: "company_email",
-    // },
     {
       title: "Duration",
       dataIndex: "duration",
@@ -30,14 +27,9 @@ const Coupons = () => {
     },
     {
       title: "Assigned Name",
-      dataIndex: "assigned_name",
-      key: "assigned_name",
+      dataIndex: "assignedName",
+      key: "assignedName",
     },
-    // {
-    //   title: "UserID",
-    //   dataIndex: "userID",
-    //   key: "userID",
-    // },
     {
       title: "Exp_date",
       dataIndex: "exp_date",
@@ -50,181 +42,26 @@ const Coupons = () => {
     },
     {
       title: "Time_created",
-      dataIndex: "timeCre",
-      key: "timeCre",
+      dataIndex: "time_created",
+      key: "time_created",
     },
   ];
 
-  const details = [
-    {
-      key: 1,
-      coupon: 531753,
-      company_email: "dkamiyama0@people.com",
-      duration: "3 month",
-      price: '$200',
-      assigned_name: "Dannye",
-      userID: 1,
-      exp_date:'8/8/2010',
-      status: 'active',
-      timeCre:'25/8/2003'
-    },
-    {
-      key: 1,
-      coupon: 531753,
-      company_email: "dkamiyama0@people.com",
-      duration: "3 month",
-      price: '$200',
-      assigned_name: "Dannye",
-      userID: 1,
-      exp_date:'8/8/2010',
-      status: 'active',
-      timeCre:'25/8/2003'
-    },
-    {
-      key: 1,
-      coupon: 531753,
-      company_email: "dkamiyama0@people.com",
-      duration: "3 month",
-      price: '$200',
-      assigned_name: "Dannye",
-      userID: 1,
-      exp_date:'8/8/2010',
-      status: 'active',
-      timeCre:'25/8/2003'
-    },
-    {
-      key: 1,
-      coupon: 531753,
-      company_email: "dkamiyama0@people.com",
-      duration: "3 month",
-      price: '$200',
-      assigned_name: "Dannye",
-      userID: 1,
-      exp_date:'8/8/2010',
-      status: 'active',
-      timeCre:'25/8/2003'
-    },
-    {
-      key: 1,
-      coupon: 531753,
-      company_email: "dkamiyama0@people.com",
-      duration: "3 month",
-      price: '$200',
-      assigned_name: "Dannye",
-      userID: 1,
-      exp_date:'8/8/2010',
-      status: 'active',
-      timeCre:'25/8/2003'
-    },
-    {
-      key: 1,
-      coupon: 531753,
-      company_email: "dkamiyama0@people.com",
-      duration: "3 month",
-      price: '$200',
-      assigned_name: "Dannye",
-      userID: 1,
-      exp_date:'8/8/2010',
-      status: 'active',
-      timeCre:'25/8/2003'
-    },
-    {
-      key: 1,
-      coupon: 531753,
-      company_email: "dkamiyama0@people.com",
-      duration: "3 month",
-      price: '$200',
-      assigned_name: "Dannye",
-      userID: 1,
-      exp_date:'8/8/2010',
-      status: 'active',
-      timeCre:'25/8/2003'
-    },
-    {
-      key: 1,
-      coupon: 531753,
-      company_email: "dkamiyama0@people.com",
-      duration: "3 month",
-      price: '$200',
-      assigned_name: "Dannye",
-      userID: 1,
-      exp_date:'8/8/2010',
-      status: 'active',
-      timeCre:'25/8/2003'
-    },
-    {
-      key: 1,
-      coupon: 531753,
-      company_email: "dkamiyama0@people.com",
-      duration: "3 month",
-      price: '$200',
-      assigned_name: "Dannye",
-      userID: 1,
-      exp_date:'8/8/2010',
-      status: 'active',
-      timeCre:'25/8/2003'
-    },
-    {
-      key: 1,
-      coupon: 531753,
-      company_email: "dkamiyama0@people.com",
-      duration: "3 month",
-      price: '$200',
-      assigned_name: "Dannye",
-      userID: 1,
-      exp_date:'8/8/2010',
-      status: 'active',
-      timeCre:'25/8/2003'
-    },
-    {
-      key: 1,
-      coupon: 531753,
-      company_email: "dkamiyama0@people.com",
-      duration: "3 month",
-      price: '$200',
-      assigned_name: "Dannye",
-      userID: 1,
-      exp_date:'8/8/2010',
-      status: 'active',
-      timeCre:'25/8/2003'
-    },
-    {
-      key: 1,
-      coupon: 531753,
-      company_email: "dkamiyama0@people.com",
-      duration: "3 month",
-      price: '$200',
-      assigned_name: "Dannye",
-      userID: 1,
-      exp_date:'8/8/2010',
-      status: 'active',
-      timeCre:'25/8/2003'
-    },
-    {
-      key: 1,
-      coupon: 531753,
-      company_email: "dkamiyama0@people.com",
-      duration: "3 month",
-      price: '$200',
-      assigned_name: "Dannye",
-      userID: 1,
-      exp_date:'8/8/2010',
-      status: 'active',
-      timeCre:'25/8/2003'
-    },
-    {
-      key: 1,
-      coupon: 531753,
-      company_email: "dkamiyama0@people.com",
-      duration: "3 month",
-      price: '$200',
-      assigned_name: "Dannye",
-      userID: 1,
-      exp_date:'8/8/2010',
-      status: 'active',
-      timeCre:'25/8/2003'
-    }
-  ];
+
+  const [data, setData] = useState(null);
+  
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const resp = await axios.get("https://mindcastserver-a98c5305de98.herokuapp.com/api/v1/user/all-coupons");
+        setData((prev) => (prev = resp.data.data));
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetchData();
+  }, []);
+
 
   return (
     <div className="bg-white rounded-md p-3">
@@ -248,7 +85,7 @@ const Coupons = () => {
 
       <div className="mt-8">
         <Table
-          dataSource={details}
+          dataSource={data}
           columns={columns}
           size="small"
           pagination={{

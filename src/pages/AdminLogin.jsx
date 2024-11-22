@@ -18,7 +18,7 @@ const AdminLogin = () => {
 
             localStorage.setItem("admin", JSON.stringify(adminData));
 
-            window.location.href = "/layout";
+            window.location.href = "/";
         } else {
             setError("Invalid username or password");
         }

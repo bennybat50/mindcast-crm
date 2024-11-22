@@ -1,14 +1,13 @@
-import { Button, Input, Table } from "antd";
-
-import arrowDown from "../assets/arrow-down.png";
+import { Button, Input, Modal, Table } from "antd";
 import search from "../assets/search-normal.png";
 import user from "../assets/user_img.png";
-import verify from "../assets/verify.png";
-import { Link } from "react-router-dom";
-import Adduser from "../components/Adduser";
 import { useState } from "react";
 
+const { TextArea } = Input;
+
 const UserManagement = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   const columns = [
     {
       title: "Username",
@@ -119,10 +118,14 @@ const UserManagement = () => {
       "code_expiration": "30/3/2000"
     }
   ];
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const inputClass = "bg-[#F6F6F6] hover:!bg-[#F6F6F6] focus:!bg-[#F6F6F6] border-none p-3";
+  const showModal = () => {
+    setIsModalOpen(true);
+  };
 
-  const openModal = () => setIsModalOpen(true);
-  const closeModal = () => setIsModalOpen(false);
+  const handleCancel = () => {
+    setIsModalOpen(false);
+  };
   return (
     <div className="bg-white rounded-md p-3">
       <div className="flex justify-between items-center">
@@ -137,10 +140,27 @@ const UserManagement = () => {
               className="ml-2 bg-transparent border-none outline-none focus:!outline-none focus:bg-transparent hover:!bg-transparent focus:border-transparent"
             />
           </div>
-          <Button className="text-white bg-black rounded-full hover:!bg-black hover:!text-white outline-none flex items-center h-9" onClick={openModal}>
+          <Button className="text-white bg-black rounded-full hover:!bg-black hover:!text-white outline-none flex items-center h-9" onClick={showModal}>
             Add users +
           </Button>
-          <Adduser isOpen={isModalOpen} onClose={closeModal} />
+          <Modal title="Add users" open={isModalOpen} footer={null} onCancel={handleCancel}>
+            <p className="text-sm font-semibold mt-4">Email</p>
+            <Input type="text"
+              placeholder="example@gamil.com"
+              className={inputClass}
+            />
+            <p className="text-sm font-semibold mt-4">Coupon-code</p>
+            <Input type="text"
+              placeholder="io****"
+              className={inputClass}
+            />
+
+            <div className="flex justify-end mt-4">
+              <Button className="text-white bg-[#0a0e16] rounded-full hover:!bg-black px-7 py-5 outline-none">
+                Submit
+              </Button>
+            </div>
+          </Modal>
         </div>
       </div>
 
