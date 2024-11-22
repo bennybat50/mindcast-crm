@@ -20,11 +20,11 @@ const Coupons = () => {
       dataIndex: "duration",
       key: "duration",
     },
-    {
-      title: "Price",
-      dataIndex: "price",
-      key: "price",
-    },
+    // {
+    //   title: "Price",
+    //   dataIndex: "price",
+    //   key: "price",
+    // },
     {
       title: "Assigned Name",
       dataIndex: "assignedName",
@@ -41,7 +41,7 @@ const Coupons = () => {
       key: "status",
     },
     {
-      title: "Time_created",
+      title: "Real Time Spam",
       dataIndex: "time_created",
       key: "time_created",
     },
