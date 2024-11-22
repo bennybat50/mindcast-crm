@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
-import { Layout, Menu} from "antd";
+import { Layout, Menu } from "antd";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
-// import logo from "../assets/download.png";
 import dashboard from "../assets/dashboard.png";
 import user from "../assets/user.png";
 import content from "../assets/content.png";
@@ -47,6 +46,20 @@ const DashboardLayout = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  const [adminUsername, setAdminUsername] = useState("");
+
+  useEffect(() => {
+   const adminData = JSON.parse(localStorage.getItem("admin"));
+
+    if (adminData && adminData.adminemail) {
+      setAdminUsername(adminData.adminemail);
+    }
+  }, []);
+  const handleLogout = () => {
+    localStorage.removeItem("admin");
+    window.location.href = "/";
+  };
+  
   return (
     <Layout style={{ minHeight: "100vh" }}>
       <Sider
@@ -85,9 +98,15 @@ const DashboardLayout = () => {
                 <img src={notification} alt="Notification" className="icon" />
               </div>
             </div>
-                 <HeadlessMenu as="div" className="relative inline-block text-left">
+            <HeadlessMenu as="div" className="relative inline-block text-left">
               <MenuButton className="inline-flex w-full justify-center rounded-md bg-white px-3 py-2 ml-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
-                Options
+                <div>
+                  {adminUsername ? (
+                    <h3>Welcome, {adminUsername}!</h3>
+                  ) : (
+                    <h3>Welcome, Admin!</h3>
+                  )}
+                </div>
                 <ChevronDownIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
               </MenuButton>
               <MenuItems
@@ -98,7 +117,7 @@ const DashboardLayout = () => {
                       <button
                         type="button"
                         className={`block px-4 py-2 text-left text-sm ${active ? "bg-gray-100 text-gray-900" : "text-gray-700"}`}
-                      >
+                      onClick={handleLogout}>
                         Sign out
                       </button>
                     )}
