@@ -35,7 +35,7 @@ const AdminLogin = () => {
         <>
             <div className="fixed -inset-0 flex items-center justify-center bg-[rgb(165,165,165)] z-50 w-screen">
                 <div className="bg-white w-full max-w-[400px] h-[310px] rounded-xl p-5">
-                    <h2 className='font-bold text-xl mb-3'>Admin Login</h2>
+                    <h2 className='font-bold text-xl mb-3'>Mindcast CRM</h2>
                     <form onSubmit={handleLogin}>
                         <div className="">
                             <label htmlFor="" className='block text-sm font-medium py-2'>Email :  </label>
@@ -56,7 +56,7 @@ const AdminLogin = () => {
                                 required />
                         </div>
                         {error && <p style={{ color: "red" }}>{error}</p>}
-                        <button className='bg-[#40176c] text-white py-2 px-4 rounded-md mt-2 absolute right-[500px]'>Login</button>
+                        <button className='bg-[#40176c] text-white py-2 px-10 rounded-md mt-4 absolute '>Login</button>
                     </form>
                 </div>
             </div>

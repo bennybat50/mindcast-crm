@@ -11,7 +11,7 @@ import AdminLogin from "./pages/AdminLogin";
 function App() {
   return (
     <Routes>
-      <Route path="/layout" element={<AdminLogin/>}/>
+      <Route path="/login" element={<AdminLogin/>}/>
       <Route path="" element={<DashbordLayout />}>
         <Route path="/" element={<Navigate to="/dashboard" />} />
         <Route path="/dashboard" element={<Dashboard />} />
