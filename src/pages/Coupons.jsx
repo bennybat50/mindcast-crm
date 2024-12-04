@@ -9,6 +9,10 @@ import axios from "axios";
 
 
 const Coupons = () => {
+
+  const [data, setData] = useState([]);
+  const base_url = import.meta.env.VITE_API_URL;
+
   const columns = [
     {
       title: "Coupon",
@@ -19,12 +23,10 @@ const Coupons = () => {
       title: "Duration",
       dataIndex: "duration",
       key: "duration",
+      render: (duration, record) => `${duration || "N/A"} ${record.duration_type || "N/A"}`,
+
     },
-    // {
-    //   title: "Price",
-    //   dataIndex: "price",
-    //   key: "price",
-    // },
+  
     {
       title: "Assigned Name",
       dataIndex: "assignedName",
@@ -33,7 +35,7 @@ const Coupons = () => {
     {
       title: "Exp_date",
       dataIndex: "exp_date",
-      key: "exp_date",
+      key: "exp",
     },
     {
       title: "Status",
@@ -44,16 +46,17 @@ const Coupons = () => {
       title: "Real Time Spam",
       dataIndex: "time_created",
       key: "time_created",
+      render: (time_created) =>
+        time_created ? new Date(time_created * 1000).toLocaleDateString() : "N/A",
     },
   ];
 
-
-  const [data, setData] = useState(null);
+console.log(data)
   
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const resp = await axios.get("https://mindcastserver-a98c5305de98.herokuapp.com/api/v1/user/all-coupons");
+        const resp = await axios.get(`${base_url}/user/all-coupons`);
         setData((prev) => (prev = resp.data.data));
       } catch (error) {
         console.log(error);

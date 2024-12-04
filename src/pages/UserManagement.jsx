@@ -1,123 +1,71 @@
 import { Button, Input, Modal, Table } from "antd";
 import search from "../assets/search-normal.png";
 import user from "../assets/user_img.png";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import axios from "axios";
 
 const { TextArea } = Input;
 
 const UserManagement = () => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const base_url = import.meta.env.VITE_API_URL;
+  const user_domain = import.meta.env.VITE_USER_DOMAIN;
 
-  const columns = [
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [activeCoupon, setActiveCoupon] = useState([]);
+  const [error, setError] = useState("");
+  const [emailForDashData, setEmailForDashData] = useState({
+    email: "samsonade50@gmail.com",
+  });
+
+
+  const getActiveCoupon = async () => {
+    try {
+      const res = await axios.post(
+        `${base_url}/user/company-coupons-active`,
+        emailForDashData
+      );
+      if (Array.isArray(res.data.data)) {
+        setActiveCoupon(res.data.data);
+      }
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  const userColumns = [
     {
       title: "Username",
-      dataIndex: "user",
-      key: "user",
-      render: (text, record) => (
-        <div className="flex items-center">
-          <img
-            src={user}
-            // alt={record.username}
-            className="w-8 h-8 rounded-full mr-2"
-          />
-          {record.user}
-        </div>
-      ),
+      dataIndex: ["userID", "username"],
+      key: "username",
+      render: (username) => username || "N/A",
     },
     {
       title: "Email",
-      dataIndex: "email",
+      dataIndex: ["userID", "email"],
       key: "email",
+      render: (email) => email || "N/A",
     },
     {
       title: "Status",
       dataIndex: "status",
       key: "status",
+      render: (status) => status || "N/A",
     },
     {
-      title: "Coupon-Code",
-      dataIndex: "coupon_code",
+      title: "Coupon Code",
+      dataIndex: "coupon",
       key: "coupon_code",
+      render: (code) => code || "N/A",
     },
     {
       title: "Code Expiration",
-      dataIndex: "code_expiration",
-      key: "code-expiration",
-    }
+      dataIndex: "exp_date",
+      key: "code_expiration",
+      render: (exp) =>
+        exp ? new Date(exp * 1000).toLocaleDateString() : "N/A",
+    },
   ];
-  const users = [
-    {
-      "key": 1,
-      "user": "Dannye",
-      "email": "dkamiyama0@people.com",
-      "status": "active",
-      "coupon_code": 431536,
-      "code_expiration": "8/8/2010"
-    }, {
-      "key": 2,
-      "user": "Fredericka",
-      "email": "ftavner1@mtv.com",
-      "status": "active",
-      "coupon_code": 310058,
-      "code_expiration": "25/8/2003"
-    }, {
-      "key": 3,
-      "user": "Esme",
-      "email": "emckeowon2@bing.com",
-      "status": "pending",
-      "coupon_code": 413038,
-      "code_expiration": "18/12/2001"
-    }, {
-      "key": 4,
-      "user": "Alfy",
-      "email": "ablethin3@oracle.com",
-      "status": "pending",
-      "coupon_code": 517288,
-      "code_expiration": "7/4/2022"
-    }, {
-      "key": 5,
-      "user": "Dallon",
-      "email": "dfelipe4@smugmug.com",
-      "status": "pending",
-      "coupon_code": 517288,
-      "code_expiration": "7/6/2021"
-    }, {
-      "key": 6,
-      "user": "Xenia",
-      "email": "xguiton5@gmpg.org",
-      "status": "pending",
-      "coupon_code": 513887,
-      "code_expiration": "13/3/2008"
-    }, {
-      "key": 7,
-      "user": "Korella",
-      "email": "klabet6@google.ru",
-      "status": "active",
-      "coupon_code": 522039,
-      "code_expiration": "11/1/2012"
-    }, {
-      "key": 8,
-      "user": "Lanie",
-      "email": "ldinsell7@mozilla.com",
-      "status": "inactive",
-      "coupon_code": 200999,
-      "code_expiration": "8/7/2017"
-    }, {
-      "key": 9,
-      "user": "Aida",
-      "email": "adall8@wisc.edu",
-      "status": "inactive",
-      "coupon_code": 458739,
-      "code_expiration": "24/5/2009"
-    }, {
-      "key": 10,
-      "user": "Borden",
-      "email": "bfluin9@fastcompany.com",
-      "status": "active",
-      "coupon_code": 178328,
-      "code_expiration": "30/3/2000"
-    }
-  ];
+
   const inputClass = "bg-[#F6F6F6] hover:!bg-[#F6F6F6] focus:!bg-[#F6F6F6] border-none p-3";
   const showModal = () => {
     setIsModalOpen(true);
@@ -126,6 +74,11 @@ const UserManagement = () => {
   const handleCancel = () => {
     setIsModalOpen(false);
   };
+
+  useEffect(() => {
+    getActiveCoupon();
+  }, []);
+
   return (
     <div className="bg-white rounded-md p-3">
       <div className="flex justify-between items-center">
@@ -166,8 +119,8 @@ const UserManagement = () => {
 
       <div className="mt-8">
         <Table
-          dataSource={users}
-          columns={columns}
+          dataSource={activeCoupon}
+          columns={userColumns}
           size="small"
           pagination={{
             pageSize: 10,

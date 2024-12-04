@@ -1,67 +1,83 @@
-import { useState } from 'react'
+import axios from "axios";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const AdminLogin = () => {
-    const [adminemail, setAdminemail] = useState("");
-    const [password, setPassword] = useState("");
-    const [error, setError] = useState("");
-    
-    const adminCredentials = {
-        adminemail: "admin123@gmail.com",
-        password: "admin123",
-    };
+    const navigate = useNavigate();
+  const base_url = import.meta.env.VITE_API_URL;
+  const [error, setError] = useState("");
+  const [adminCredentials, setAdminCredentials] = useState({
+    email: "",
+    password: "",
+  });
 
-    const handleLogin = (e) => {
-        e.preventDefault();
-
-        if (adminemail === adminCredentials.adminemail && password === adminCredentials.password) {
-            const adminData = { adminemail, loggedIn: true };
-
-            localStorage.setItem("admin", JSON.stringify(adminData));
-
-            window.location.href = "/";
-        } else {
-            setError("Invalid username or password");
-        }
-    };
-    const adminData = JSON.parse(localStorage.getItem("admin"));
-
-    if (adminData && adminData.loggedIn) {
-        console.log("Admin is logged in:", adminData.username);
-    } else {
-        console.log("No admin is logged in.");
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await axios.post(
+        `${base_url}/auth/login`,
+        adminCredentials
+      );
+      navigate("/dashboard")
+    } catch (err) {
+      setError(err.response?.data?.message || "An error occurred during login.");
     }
+  };
 
-    return (
-        <>
-            <div className="fixed -inset-0 flex items-center justify-center bg-[rgb(165,165,165)] z-50 w-screen">
-                <div className="bg-white w-full max-w-[400px] h-[310px] rounded-xl p-5">
-                    <h2 className='font-bold text-xl mb-3'>Mindcast CRM</h2>
-                    <form onSubmit={handleLogin}>
-                        <div className="">
-                            <label htmlFor="" className='block text-sm font-medium py-2'>Email :  </label>
-                            <input type="text"
-                                className='p-3 outline-none bg-[#dedede] rounded-md pr-44'
-                                placeholder='email'
-                                value={adminemail}
-                                onChange={(e) => setAdminemail(e.target.value)}
-                                required />
-                        </div>
-                        <div className="">
-                            <label htmlFor="" className='block text-sm font-medium py-2'>Password :  </label>
-                            <input type="password"
-                                className='p-3 outline-none bg-[#dedede] rounded-md pr-44'
-                                placeholder='Password'
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                required />
-                        </div>
-                        {error && <p style={{ color: "red" }}>{error}</p>}
-                        <button className='bg-[#40176c] text-white py-2 px-10 rounded-md mt-4 absolute '>Login</button>
-                    </form>
-                </div>
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setAdminCredentials((prev) => ({ ...prev, [name]: value }));
+  };
+
+  return (
+    <>
+      <div className="fixed inset-0 flex items-center justify-center bg-[rgb(165,165,165)] z-50 w-screen">
+        <div className="bg-white w-full max-w-[400px] h-auto rounded-xl p-5">
+          <h2 className="font-bold text-xl mb-3">Mindcast CRM</h2>
+          <form onSubmit={handleLogin}>
+            <div className="mb-4">
+              <label htmlFor="email" className="block text-sm font-medium py-2">
+                Email:
+              </label>
+              <input
+                type="email"
+                name="email"
+                className="p-3 outline-none bg-[#dedede] rounded-md w-full"
+                placeholder="Email"
+                value={adminCredentials.email}
+                onChange={handleChange}
+                required
+              />
             </div>
-        </>
-    )
-}
+            <div className="mb-4">
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium py-2"
+              >
+                Password:
+              </label>
+              <input
+                type="password"
+                name="password"
+                className="p-3 outline-none bg-[#dedede] rounded-md w-full"
+                placeholder="Password"
+                value={adminCredentials.password}
+                onChange={handleChange}
+                required
+              />
+            </div>
+            {error && <p className="text-red-500 text-sm">{error}</p>}
+            <button
+              type="submit"
+              className="bg-[#40176c] text-white py-2 px-10 rounded-md mt-4 w-full"
+            >
+              Login
+            </button>
+          </form>
+        </div>
+      </div>
+    </>
+  );
+};
 
-export default AdminLogin
+export default AdminLogin;
