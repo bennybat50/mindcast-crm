@@ -1,10 +1,12 @@
 import axios from "axios";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useUserContext } from "../context/UserContext.jsx";
 
 const AdminLogin = () => {
     const navigate = useNavigate();
   const base_url = import.meta.env.VITE_API_URL;
+  const { dispatch } = useUserContext();
   const [error, setError] = useState("");
   const [adminCredentials, setAdminCredentials] = useState({
     email: "",
@@ -18,11 +20,15 @@ const AdminLogin = () => {
         `${base_url}/auth/login`,
         adminCredentials
       );
+      const userData = res.data.data.user;
+      dispatch({ type: 'SET_USER', payload: userData });
+      localStorage.setItem("user", JSON.stringify(userData));  // Persist user data
       navigate("/dashboard")
     } catch (err) {
       setError(err.response?.data?.message || "An error occurred during login.");
     }
   };
+  
 
   const handleChange = (e) => {
     const { name, value } = e.target;

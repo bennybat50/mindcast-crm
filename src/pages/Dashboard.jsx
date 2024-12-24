@@ -1,54 +1,66 @@
 import React, { useEffect, useState } from "react";
 import { Table } from "antd";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import followers from "../assets/followers.png";
 import following from "../assets/following.png";
 import community from "../assets/community.png";
 import arrowRight from "../assets/arrow-right.png";
-import user from "../assets/user_img.png";
 import axios from "axios";
+import { useUserContext } from "../context/UserContext.jsx";
 
 const Dashboard = () => {
-  
-    const base_url = import.meta.env.VITE_API_URL;
-
+  const base_url = import.meta.env.VITE_API_URL;
+  const { state } = useUserContext();
   const [collectedDashBoardData, setCollectedDashBoardData] = useState([]);
   const [activeCoupon, setActiveCoupon] = useState([]);
-
   const [error, setError] = useState("");
-  const [emailForDashData, setEmailForDashData] = useState({
-    email: "samsonade50@gmail.com",
-  });
+  const navigate = useNavigate();
 
-  const getDashBoardData = async () => {
-    try {
-      const res = await axios.post(
-        `${base_url}/user/company-coupons`,
-        emailForDashData
-      );
-      if (Array.isArray(res.data.data)) {
-        setCollectedDashBoardData(res.data.data);
-      }
-    } catch (err) {
-      setError(err.message);
+  const storedUser = localStorage.getItem("user");
+
+  useEffect(() => {
+    // If no user, navigate to login
+    if (!storedUser) {
+      navigate("/login");
+    } else {
+      // Fetch data only if user exists
+      const fetchData = async () => {
+        try {
+          const emailPayload = { email:"samsonade50@gmail.com"};
+          const res = await axios.post(
+            `${base_url}/user/company-coupons`,
+            emailPayload
+          );
+          setCollectedDashBoardData(res.data.data || []);
+        } catch (err) {
+          setError(err.message);
+        }
+      };
+      fetchData();
     }
-  };
+  }, [storedUser, navigate]);
 
-  const getActiveCoupon = async () => {
-    try {
-      const res = await axios.post(
-        `${base_url}/user/company-coupons-active`,
-        emailForDashData
-      );
-      if (Array.isArray(res.data.data)) {
-        setActiveCoupon(res.data.data);
-      }
-    } catch (err) {
-      setError(err.message);
+  useEffect(() => {
+    if (storedUser) {
+      const getActiveCoupon = async () => {
+        try {
+          const res = await axios.post(
+            `${base_url}/user/company-coupons-active`,
+            { email: "samsonade50@gmail.com" }
+          );
+          if (Array.isArray(res.data.data)) {
+            setActiveCoupon(res.data.data);
+          }
+        } catch (err) {
+          setError(err.message);
+        }
+      };
+      getActiveCoupon();
     }
-  };
+  }, [storedUser]);
 
+  // Define data for the grid
   const data = [
     {
       key: 1,
@@ -124,7 +136,8 @@ const Dashboard = () => {
       title: "Duration",
       dataIndex: "duration",
       key: "duration",
-      render: (duration, record) => `${duration || "N/A"} ${record.duration_type || "N/A"}`,
+      render: (duration, record) =>
+        `${duration || "N/A"} ${record.duration_type || "N/A"}`,
     },
     {
       title: "Status",
@@ -133,12 +146,6 @@ const Dashboard = () => {
       render: (status) => status || "N/A",
     },
   ];
-
-  useEffect(() => {
-    getDashBoardData();
-    getActiveCoupon();
-  }, []);
-
 
   return (
     <div>
@@ -152,7 +159,11 @@ const Dashboard = () => {
                 <p className="font-semibold text-lg">{e.content}</p>
               </div>
               <div>
-                <img src={arrowRight} alt="arrow-right" className="w-[6px] mt-1" />
+                <img
+                  src={arrowRight}
+                  alt="arrow-right"
+                  className="w-[6px] mt-1"
+                />
               </div>
             </div>
             <div className="bg-[#EDFEF6] mt-3 w-28 rounded flex items-center justify-center">

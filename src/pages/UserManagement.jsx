@@ -1,14 +1,10 @@
-import { Button, Input, Modal, Table } from "antd";
+import { Button, Input, Modal } from "antd";
 import search from "../assets/search-normal.png";
-import user from "../assets/user_img.png";
 import { useEffect, useState } from "react";
 import axios from "axios";
 
-const { TextArea } = Input;
-
 const UserManagement = () => {
   const base_url = import.meta.env.VITE_API_URL;
-  const user_domain = import.meta.env.VITE_USER_DOMAIN;
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeCoupon, setActiveCoupon] = useState([]);
@@ -17,7 +13,7 @@ const UserManagement = () => {
     email: "samsonade50@gmail.com",
   });
 
-
+  // Fetch Active Coupons
   const getActiveCoupon = async () => {
     try {
       const res = await axios.post(
@@ -25,48 +21,39 @@ const UserManagement = () => {
         emailForDashData
       );
       if (Array.isArray(res.data.data)) {
-        setActiveCoupon(res.data.data);
+        const sanitizedCoupons = res.data.data.map((coupon) => ({
+          ...coupon,
+          userID: coupon.userID || {}, // Ensure userID is an object
+        }));
+        setActiveCoupon(sanitizedCoupons);
       }
     } catch (err) {
       setError(err.message);
     }
   };
 
-  const userColumns = [
-    {
-      title: "Username",
-      dataIndex: ["userID", "username"],
-      key: "username",
-      render: (username) => username || "N/A",
-    },
-    {
-      title: "Email",
-      dataIndex: ["userID", "email"],
-      key: "email",
-      render: (email) => email || "N/A",
-    },
-    {
-      title: "Status",
-      dataIndex: "status",
-      key: "status",
-      render: (status) => status || "N/A",
-    },
-    {
-      title: "Coupon Code",
-      dataIndex: "coupon",
-      key: "coupon_code",
-      render: (code) => code || "N/A",
-    },
-    {
-      title: "Code Expiration",
-      dataIndex: "exp_date",
-      key: "code_expiration",
-      render: (exp) =>
-        exp ? new Date(exp * 1000).toLocaleDateString() : "N/A",
-    },
-  ];
+  // Delete Coupon Function
+  const handleDelete = async (userId) => {
+    if (!userId) {
+      setError("Invalid user ID provided for deletion.");
+      return;
+    }
+    try {
+      const payload = { user_id: userId };
+      const res = await axios.post(`${base_url}/user/cancel-coupon`, payload);
+      if (res.data.status) {
+        alert("Coupon deleted successfully.");
+        getActiveCoupon();
+      } else {
+        setError(res.data.message || "Failed to delete coupon");
+      }
+    } catch (err) {
+      setError(
+        `Failed to delete: ${err.response?.data?.message || err.message}`
+      );
+    }
+  };
 
-  const inputClass = "bg-[#F6F6F6] hover:!bg-[#F6F6F6] focus:!bg-[#F6F6F6] border-none p-3";
   const showModal = () => {
     setIsModalOpen(true);
   };
@@ -82,54 +69,99 @@ const UserManagement = () => {
   return (
     <div className="bg-white rounded-md p-3">
       <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-lg font-semibold">All Users</h1>
-        </div>
+        <h1 className="text-lg font-semibold">All Users</h1>
         <div className="flex gap-5">
           <div className="bg-[#F6F6F6] flex items-center rounded-full w-72 px-3">
             <img src={search} className="w-4 h-4 cursor-pointer" />
             <Input
               placeholder="Search user....."
-              className="ml-2 bg-transparent border-none outline-none focus:!outline-none focus:bg-transparent hover:!bg-transparent focus:border-transparent"
+              className="ml-2 bg-transparent border-none"
             />
           </div>
-          <Button className="text-white bg-black rounded-full hover:!bg-black hover:!text-white outline-none flex items-center h-9" onClick={showModal}>
+          <Button
+            className="text-white bg-black rounded-full"
+            onClick={showModal}
+          >
             Add users +
           </Button>
-          <Modal title="Add users" open={isModalOpen} footer={null} onCancel={handleCancel}>
-            <p className="text-sm font-semibold mt-4">Email</p>
-            <Input type="text"
+          <Modal
+            title="Add users"
+            open={isModalOpen}
+            footer={null}
+            onCancel={handleCancel}
+          >
+            <Input
+              type="text"
               placeholder="example@gamil.com"
-              className={inputClass}
+              className="bg-[#F6F6F6] p-3 border-none"
             />
-            <p className="text-sm font-semibold mt-4">Coupon-code</p>
-            <Input type="text"
+            <Input
+              type="text"
               placeholder="io****"
-              className={inputClass}
+              className="bg-[#F6F6F6] p-3 border-none mt-4"
             />
-
-            <div className="flex justify-end mt-4">
-              <Button className="text-white bg-[#0a0e16] rounded-full hover:!bg-black px-7 py-5 outline-none">
-                Submit
-              </Button>
-            </div>
+            <Button className="text-white bg-[#0a0e16] mt-4 rounded-full">
+              Submit
+            </Button>
           </Modal>
         </div>
       </div>
 
-      <div className="mt-8">
-        <Table
-          dataSource={activeCoupon}
-          columns={userColumns}
-          size="small"
-          pagination={{
-            pageSize: 10,
-            position: ["bottomCenter"],
-            className: "custom-pagination",
-          }}
-          scroll={{ x: "max-content" }}
-        />
+      <div className="mt-8 overflow-auto">
+        <table className="min-w-full border-collapse border border-gray-200">
+          <thead className="bg-gray-100">
+            <tr>
+              <th className="border border-gray-300 p-2 text-left">Username</th>
+              <th className="border border-gray-300 p-2 text-left">Email</th>
+              <th className="border border-gray-300 p-2 text-left">Status</th>
+              <th className="border border-gray-300 p-2 text-left">
+                Coupon Code
+              </th>
+              <th className="border border-gray-300 p-2 text-left">
+                Code Expiration
+              </th>
+              <th className="border border-gray-300 p-2 text-left">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {activeCoupon.map((coupon) => (
+              <tr key={coupon._id}>
+                <td className="border border-gray-300 p-2">
+                  {coupon.userID?.username || "N/A"}
+                </td>
+                <td className="border border-gray-300 p-2">
+                  {coupon.userID?.email || "N/A"}
+                </td>
+                <td className="border border-gray-300 p-2">
+                  {coupon.status || "N/A"}
+                </td>
+                <td className="border border-gray-300 p-2">
+                  {coupon.coupon || "N/A"}
+                </td>
+                <td className="border border-gray-300 p-2">
+                  {coupon.exp_date
+                    ? new Date(coupon.exp_date * 1000).toLocaleDateString()
+                    : "N/A"}
+                </td>
+                <td className="border border-gray-300 p-2">
+                  <button
+                    onClick={() => {
+                      const userId = coupon.userID?._id;
+                      if (userId) {
+                        handleDelete(userId);
+                      } 
+                    }}
+                    className="text-red-500 hover:underline"
+                  >
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
+      {error && <p className="text-red-500 mt-2">{error}</p>}
     </div>
   );
 };

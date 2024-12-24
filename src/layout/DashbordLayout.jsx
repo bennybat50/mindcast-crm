@@ -1,15 +1,20 @@
 import { useState, useEffect } from "react";
 import { Layout, Menu } from "antd";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
-import dashboard from "../assets/dashboard.png";
-import user from "../assets/user.png";
-import content from "../assets/content.png";
-import analysis from "../assets/analysis.png";
-import setting from "../assets/setting.png";
 import global from "../assets/global.png";
 import notification from "../assets/notification-bing.png";
-import { Menu as HeadlessMenu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
+import {
+  Menu as HeadlessMenu,
+  MenuButton,
+  MenuItem,
+  MenuItems,
+} from "@headlessui/react";
 import { ChevronDownIcon } from "@heroicons/react/20/solid";
+import { useUserContext } from "../context/UserContext";
+import { MdDashboardCustomize } from "react-icons/md";
+import { CiSettings, CiUser } from "react-icons/ci";
+import { HiMiniUsers } from "react-icons/hi2";
+import { RiCouponLine } from "react-icons/ri";
 
 const { Sider, Content, Header } = Layout;
 
@@ -22,23 +27,28 @@ function getItem(label, key, icon) {
 }
 
 const items = [
-  getItem("Dashboard", "/dashboard", <img src={dashboard} alt="Dashboard" className="w-4" />),
-  getItem("Users", "/user-management", <img src={user} alt="Users" className="w-4" />),
-  getItem("Coupons", "/coupons", <img src={content} alt="Coupons" className="w-4" />),
-  getItem("Profile", "/profile", <img src={analysis} alt="Profile" className="w-4" />),
-  getItem("Change Password", "/change-password", <img src={setting} alt="Change Password" className="w-4" />),
+  getItem("Dashboard", "/dashboard", <MdDashboardCustomize className="w-4" />),
+  getItem("Users", "/user-management", <HiMiniUsers className="w-4" />),
+  getItem("Coupons", "/coupons", <RiCouponLine className="w-4" />),
+  getItem("Profile", "/profile", <CiUser className="w-4" />),
+  getItem(
+    "Change Password",
+    "/change-password",
+    <CiSettings className="w-4" />
+  ),
 ];
 
 const DashboardLayout = () => {
+  const { state, dispatch } = useUserContext();
   const [collapsed, setCollapsed] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-
   const handleMenuClick = (e) => navigate(e.key);
 
   const handleResize = () => {
     setCollapsed(window.innerWidth < 1020);
   };
+  
   useEffect(() => {
     window.addEventListener("resize", handleResize);
     handleResize();
@@ -46,22 +56,24 @@ const DashboardLayout = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const [adminUsername, setAdminUsername] = useState("");
-
+  // Check for the user data in localStorage on initial load
   useEffect(() => {
-   const adminData = JSON.parse(localStorage.getItem("admin"));
-
-    if (adminData && adminData.adminemail) {
-      setAdminUsername(adminData.adminemail);
-    }else{
-      window.location.href ="/login"
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      dispatch({ type: "SET_USER", payload: JSON.parse(storedUser) }); // Assume you have a SET_USER action
+    } else {
+      navigate("/login");  // Redirect to login page if no user is found
     }
-  }, []);
+  }, [dispatch, navigate]);
+
+  const adminUsername = state.user ? state.user.username : "";
+
   const handleLogout = () => {
-    localStorage.removeItem("admin");
-    window.location.href = "/";
+    dispatch({ type: "LOGOUT" });
+    localStorage.removeItem("user"); // Clear persisted data
+    navigate("/login");
   };
-  
+
   return (
     <Layout style={{ minHeight: "100vh" }}>
       <Sider
@@ -86,10 +98,7 @@ const DashboardLayout = () => {
       </Sider>
 
       <Layout style={{ marginLeft: collapsed ? 80 : 250 }}>
-        <Header
-          className="bg-white fixed top-0 left-0 right-0 flex items-center w-full"
-          style={{ zIndex: 900, paddingLeft: collapsed ? 80 : 250 }}
-        >
+        <Header className="bg-white fixed top-0 left-0 right-0 flex items-center w-full z-50 pl-[var(--sider-width)]">
           <div className="flex justify-end items-center w-full">
             <div></div>
             <div className="flex gap-3">
@@ -109,17 +118,23 @@ const DashboardLayout = () => {
                     <h3>Welcome, Admin!</h3>
                   )}
                 </div>
-                <ChevronDownIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
+                <ChevronDownIcon
+                  className="h-5 w-5 text-gray-400"
+                  aria-hidden="true"
+                />
               </MenuButton>
-              <MenuItems
-                className="absolute z-10 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
+              <MenuItems className="absolute z-10 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
                 <div>
                   <MenuItem>
                     {({ active }) => (
                       <button
                         type="button"
-                        className={`block px-4 py-2 text-left text-sm ${active ? "bg-gray-100 text-gray-900" : "text-gray-700"}`}
-                      onClick={handleLogout}>
+                        className={`block px-4 py-2 text-left text-sm ${
+                          active ? "bg-gray-100 text-gray-900" : "text-gray-700"
+                        }`}
+                        onClick={handleLogout}
+                        tabIndex={0}
+                      >
                         Sign out
                       </button>
                     )}
